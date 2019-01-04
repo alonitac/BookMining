@@ -115,6 +115,8 @@ if __name__ == '__main__':
 
         plt.subplots_adjust(wspace=0.3)
 
+        plt.show()
+
 
 
 
