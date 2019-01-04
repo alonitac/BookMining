@@ -70,7 +70,7 @@ if __name__ == '__main__':
         tokens_filtered = pd.Series(filtered_text).value_counts()
 
         # TODO: make more pretty
-        print('tokens: ' + str(tokens[:20].index) + +
+        print('tokens: ' + str(tokens[:20].index) +
               '\n filtered tokens: ' + str(tokens_filtered[:20].index))
 
         # (d) stemming
