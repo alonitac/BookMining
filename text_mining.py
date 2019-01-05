@@ -116,7 +116,7 @@ def zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
     toks = [tokens, tokens_filtered, tokens_stemmed, tokens_np]
 
     fig1, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(12, 12))
-    fig1.subplots_adjust(hspace=0.3, wspace=0.05)
+    fig1.subplots_adjust(hspace=0.3, wspace=0.1)
 
     for ax, k in zip([ax1, ax2, ax3, ax4], toks):
         tokens_list = k
@@ -138,10 +138,10 @@ def zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
     ax3.set_title("filtered & stemmed")
     ax4.set_title("filtered, stemmed, noun phrase")
 
-    ax3.set_xlabel("Frequency rank of token")
-    ax4.set_xlabel("Frequency rank of token")
-    ax1.set_ylabel("Absolute frequency of token")
-    ax3.set_ylabel("Absolute frequency of token")
+    ax3.set_xlabel("Frequency Rank of Token")
+    ax4.set_xlabel("Frequency Rank of Token")
+    ax1.set_ylabel("Absolute Frequency of Token")
+    ax3.set_ylabel("Absolute Frequency of Token")
 
     return fig1
 
@@ -220,15 +220,15 @@ if __name__ == '__main__':
 
 
 
-
-
-# extract_noun_phrase does not work to 100 percent yet
-
-extract_noun_phrase(sent_pos[3])
-
-noun_phrases = [extract_noun_phrase(sent) for sent in sent_pos]
-
-sentence = [("Rapunzel", "NNP"), ("let", "VBD"), ("down", "RP"),
-                 ("her", "PP$"), ("long", "JJ"), ("golden", "JJ"), ("hair", "NN")]
-extract_noun_phrase(sentence) # missing: not only JJ, must be followed by noun
-
+#
+#
+# # extract_noun_phrase does not work to 100 percent yet
+#
+# extract_noun_phrase(sent_pos[3])
+#
+# noun_phrases = [extract_noun_phrase(sent) for sent in sent_pos]
+#
+# sentence = [("Rapunzel", "NNP"), ("let", "VBD"), ("down", "RP"),
+#                  ("her", "PP$"), ("long", "JJ"), ("golden", "JJ"), ("hair", "NN")]
+# extract_noun_phrase(sentence) # missing: not only JJ, must be followed by noun
+#
