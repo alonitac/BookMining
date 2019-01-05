@@ -5,6 +5,8 @@ import nltk
 # nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
+from nltk.tokenize import sent_tokenize
+
 import re
 import pandas as pd
 from collections import Counter
@@ -44,14 +46,14 @@ if __name__ == '__main__':
 
 
 
-        text_pos = nltk.pos_tag(plain_words_lst)
-        noun_phrases = extract_noun_phrase(text_pos)
-
-        # start of (b) repeating
-        phrases_counts = Counter(noun_phrases[:50])  # I limit for first 50, otherwise it's not readable
-        df = pd.DataFrame.from_dict(phrases_counts, orient='index')
-        df.plot(kind='bar')
-        plt.show()
+        # text_pos = nltk.pos_tag(plain_words_lst)
+        # noun_phrases = extract_noun_phrase(text_pos)
+        #
+        # # start of (b) repeating
+        # phrases_counts = Counter(noun_phrases[:50])  # I limit for first 50, otherwise it's not readable
+        # df = pd.DataFrame.from_dict(phrases_counts, orient='index')
+        # df.plot(kind='bar')
+        # plt.show()
 
         # start of (b)
 
@@ -127,8 +129,8 @@ if __name__ == '__main__':
 
 
     # A Zipf plot
-    counts = tokens_filtered
-    indices = tokens_filtered.index
+    counts = tokens_stemmed
+    indices = tokens_stemmed.index
 
     ranks = np.arange(1, len(counts)+1)
     #indices = np.argsort(-counts)
@@ -149,4 +151,28 @@ if __name__ == '__main__':
                      verticalalignment="bottom",
                      horizontalalignment="left")
 
+
+# (d) sentences
+
+pt = plain_text[545:]
+sentences = sent_tokenize(pt)
+
+period_sent = [re.split('\. ', sent) for sent in sentences]
+check_period = [group for group in period_sent if len(group)>1]
+
+# does good job
+check_period[1] # '...' but sometimes it should also end like this...
+check_period[3] # 'St. Augustine'
+check_period[5] # '92. Who has not' list
+check_period[6] # 'Nov' abriviation
+check_period[8] # 'Arther B. Bullock' names
+
+# pos for sentences
+sent_pos = [nltk.pos_tag(nltk.word_tokenize(sent)) for sent in sentences]
+
+extract_noun_phrase(sent_pos[3])
+
+
+len(period_sent)
+len(sent_tokenize_list)
 
