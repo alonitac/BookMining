@@ -6,14 +6,31 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import sent_tokenize
+
 import re
 import pandas as pd
+from collections import Counter
 import matplotlib.pyplot as plt
 import string
 import numpy as np
 
 
-# https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
+def extract_noun_phrase(pos_list):
+    # https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
+    phrases = []
+    i = 0
+    while i < len(pos_list):
+        if pos_list[i][1].startswith('JJ') or pos_list[i][1].startswith('NN'): # add: after JJ has to be JJ and at some point NN or NN directly
+            phrase = pos_list[i][0]
+            i += 1
+            while i < len(pos_list) and pos_list[i][1].startswith('NN'):
+                phrase += ' ' + pos_list[i][0]
+                i += 1
+            phrases.append(phrase)
+        else:
+            i += 1
+    return phrases
+
 
 def noun_phrases(plain_text):
     pt = plain_text
@@ -55,9 +72,9 @@ def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
 
     toks = [tokens, tokens_filtered, tokens_stemmed, tokens_np]
 
-    fig1, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=4, nrows=1, figsize=(16, 12))
+    fig1, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=4, nrows=1, figsize=(12, 12))
     for ax, k in zip([ax1, ax2, ax3, ax4], toks):
-        tokens_list = k[:40]
+        tokens_list = k[:50]
 
         people = tokens_list.index
         y_pos = np.arange(1, len(people) + 1)
@@ -69,12 +86,13 @@ def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
         ax.set_yticklabels(people)
         ax.set_xlabel("Frequency of Token")
 
-    ax1.set_title("(b) unfiltered")
-    ax2.set_title("(c) filtered")
-    ax3.set_title("(d) filtered & stemmed")
+    ax1.set_title("(b) whole text")
+    ax2.set_title("(c) w/o stopwords")
+    ax3.set_title("(d) w/o stopwords & stemmed")
     ax4.set_title("(e) noun phrases, stemmed")
 
     plt.subplots_adjust(wspace=0.3)
+    fig1.tight_layout()
 
     return fig1
 
@@ -93,6 +111,7 @@ def zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
         ranks = np.arange(1, len(counts) + 1)
         frequencies = counts
 
+
         ax.loglog(ranks, frequencies, marker=".")
 
         for n in list(np.logspace(-0.5, np.log10(len(counts)), 17, endpoint=False).astype(int)):
@@ -100,28 +119,26 @@ def zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
                          verticalalignment="bottom",
                          horizontalalignment="left")
 
-    ax1.set_title("(b) unfiltered")
-    ax2.set_title("(c)) filtered")
-    ax3.set_title("(d) filtered & stemmed")
+    ax1.set_title("(b) whole text")
+    ax2.set_title("(c) w/o stopwords")
+    ax3.set_title("(d) w/o stopwords & stemmed")
     ax4.set_title("(e) noun phrases, stemmed")
 
     ax3.set_xlabel("Rank of Token")
     ax4.set_xlabel("Rank of Token")
     ax1.set_ylabel("Absolute Frequency of Token")
     ax3.set_ylabel("Absolute Frequency of Token")
+    fig1.tight_layout()
 
     return fig1
-
-
-def to_lowercase_words(text):
-    return re.sub(r"[A-Z][A-Z]+", lambda word: word.group(0).lower(), text)
 
 
 if __name__ == '__main__':
 
     with open("Nietzsche.txt", "r") as f:
         plain_text = f.read().replace('\n', ' ')
-        plain_text = to_lowercase_words(plain_text)
+
+    # TODO: Alon lowercase
 
     plain_words_lst = re.sub("[^\w]", " ", plain_text).split()
 
@@ -132,6 +149,18 @@ if __name__ == '__main__':
     # (b) tokenize text
     tokenized_text = nltk.word_tokenize(clean_text)
     tokens = pd.Series(tokenized_text).value_counts()
+
+
+
+    # text_pos = nltk.pos_tag(plain_words_lst)
+    # noun_phrases = extract_noun_phrase(text_pos)
+    #
+    # # start of (b) repeating
+    # phrases_counts = Counter(noun_phrases[:50])  # I limit for first 50, otherwise it's not readable
+    # df = pd.DataFrame.from_dict(phrases_counts, orient='index')
+    # df.plot(kind='bar')
+    # plt.show()
+
 
     # (c) stopwords
 
@@ -153,11 +182,6 @@ if __name__ == '__main__':
     tokens_stemmed = nltk.word_tokenize(stemmed_text)
     tokens_stemmed = pd.Series(tokens_stemmed).value_counts()
 
-    print('20 most frequent tokens: \n' +
-          'unfiltered: \n' + str(tokens[:20].index.values) +
-          '\n filtered: \n' + str(tokens_filtered[:20].index.values) +
-          '\n filtered & stemmed: \n' + str(tokens_stemmed[:20].index.values))
-
     # (e) noun phrase
 
     pt = plain_text[545:]
@@ -171,13 +195,42 @@ if __name__ == '__main__':
     stemmed_text = [ps.stem(w) for w in tokenized_text]
     tokens_np = pd.Series(stemmed_text).value_counts()
 
+
+    print('20 most frequent tokens: \n' +
+          'whole text: \n' + str(tokens[:20].index.values) +
+          '\n w/o stopwords: \n' + str(tokens_filtered[:20].index.values) +
+          '\n w/o stopwords & stemmed: \n' + str(tokens_stemmed[:20].index.values) +
+          '\n noun phrases, stemmed: \n' + str(tokens_np[:20].index.values))
+
     fig1 = bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
     fig2 = zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
+    # fig1.savefig('tokens.png')
+    # fig2.savefig('zipfian_graph.png')
 
     plt.show()
 
     # (f) faulty POS tagging
-    sentence = 'hitherto prevalent'
-    # Actual: [('hitherto', 'NN'), ('prevalent', 'NN')]
-    # Expected: [('hitherto', 'RB'), ('prevalent', 'JJ')]
-    print(nltk.pos_tag(nltk.word_tokenize(sentence)))
+    sentence = 'SUPPOSING that Truth is a woman--what then?'
+    sentence = 'WHOSE DUTY IS WAKEFULNESS ITSELF, are the heirs of all the strength which the struggle against this error has fostered.'
+    nltk.pos_tag(nltk.word_tokenize(sentence))
+    # tags 'SUPPOSING' as NN, but should be VBZ
+    # TODO: Alans lowercase, then POS tag again and have right example hopefully.
+
+
+
+
+
+
+
+#
+#
+# # extract_noun_phrase does not work to 100 percent yet
+#
+# extract_noun_phrase(sent_pos[3])
+#
+# noun_phrases = [extract_noun_phrase(sent) for sent in sent_pos]
+#
+# sentence = [("Rapunzel", "NNP"), ("let", "VBD"), ("down", "RP"),
+#                  ("her", "PP$"), ("long", "JJ"), ("golden", "JJ"), ("hair", "NN")]
+# extract_noun_phrase(sentence) # missing: not only JJ, must be followed by noun
+#
