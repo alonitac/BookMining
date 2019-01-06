@@ -63,7 +63,6 @@ def noun_phrases(plain_text):
             phrase = separator.join(phrase)
             phrase = re.sub(', ', ' ', phrase)
             branch.append(phrase)
-        print(branch)
         np_text = np_text + branch
 
     return ' '.join(np_text)
@@ -75,7 +74,7 @@ def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
 
     fig1, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=4, nrows=1, figsize=(16, 12))
     for ax, k in zip([ax1, ax2, ax3, ax4], toks):
-        tokens_list = k[:30]
+        tokens_list = k[:40]
 
         people = tokens_list.index
         y_pos = np.arange(1, len(people) + 1)
@@ -90,7 +89,7 @@ def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
     ax1.set_title("unfiltered")
     ax2.set_title("filtered")
     ax3.set_title("filtered & stemmed")
-    ax4.set_title("filtered, stemmed, noun phrase")
+    ax4.set_title("noun phrases")
 
     plt.subplots_adjust(wspace=0.3)
 
@@ -122,7 +121,7 @@ def zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
     ax1.set_title("unfiltered")
     ax2.set_title("filtered")
     ax3.set_title("filtered & stemmed")
-    ax4.set_title("filtered, stemmed, noun phrase")
+    ax4.set_title("noun phrases")
 
     ax3.set_xlabel("Frequency Rank of Token")
     ax4.set_xlabel("Frequency Rank of Token")
@@ -197,12 +196,21 @@ if __name__ == '__main__':
     tokenized_text = nltk.word_tokenize(clean_text)
     tokens_np = pd.Series(tokenized_text).value_counts()
 
+    stemmed_text = [ps.stem(w) for w in tokenized_text]
+    tokens_np = pd.Series(stemmed_text).value_counts()
+
     fig1 = bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
     fig2 = zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
 
     plt.show()
 
     # (f) faulty POS tagging
+    sentence = 'SUPPOSING that Truth is a woman--what then?'
+    sentence = 'WHOSE DUTY IS WAKEFULNESS ITSELF, are the heirs of all the strength which the struggle against this error has fostered.'
+    nltk.pos_tag(nltk.word_tokenize(sentence))
+    # tags 'SUPPOSING' as NN, but should be VBZ
+    # TODO: Alans lowercase, then POS tag again and have right example hopefully.
+
 
 
 
