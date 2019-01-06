@@ -52,7 +52,6 @@ def noun_phrases(plain_text):
 
     np_text = []
     for i in range(0, len(sent_pos)):
-        sentence = sent_pos[i]
         noun_phrase = cp.parse(sent_pos[i])
 
         branch = []
@@ -119,7 +118,7 @@ def zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
     fig1.subplots_adjust(hspace=0.3, wspace=0.1)
 
     for ax, k in zip([ax1, ax2, ax3, ax4], toks):
-        tokens_list = k
+        tokens_list = k                             # TODO: rename
         counts = tokens_list
         indices = tokens_list.index
         ranks = np.arange(1, len(counts) + 1)
@@ -151,10 +150,13 @@ if __name__ == '__main__':
     with open("Nietzsche.txt", "r") as f:
         plain_text = f.read().replace('\n', ' ')
 
+    # TODO: Alon lowercase
+
     plain_words_lst = re.sub("[^\w]", " ", plain_text).split()
 
-    space = '                                ' # 32 spaces
+    space = '                                '  # 32 spaces
     clean_text = plain_text.translate(str.maketrans(string.punctuation, space)).lower()
+    clean_words_lst = re.sub("[^\w]", " ", clean_text).split()
 
     # (b) tokenize text
     tokenized_text = nltk.word_tokenize(clean_text)
@@ -177,8 +179,10 @@ if __name__ == '__main__':
     # lowercase to also remove title and starting words
     stop_words = set(stopwords.words('english'))
 
-    filtered_text = [w for w in tokenized_text if not w in stop_words]
-    tokens_filtered = pd.Series(filtered_text).value_counts()
+    filtered_text = [w for w in clean_words_lst if w not in stop_words]
+    filtered_text = ' '.join(filtered_text)
+    tokens_filtered = nltk.word_tokenize(filtered_text)
+    tokens_filtered = pd.Series(tokens_filtered).value_counts()
 
     # TODO: make more pretty
     print('tokens: ' + str(tokens[:20].index) +
@@ -188,14 +192,18 @@ if __name__ == '__main__':
 
     ps = PorterStemmer()
 
+    filtered_text = [w for w in clean_words_lst if w not in stop_words]
     stemmed_text = [ps.stem(w) for w in filtered_text]
-    tokens_stemmed = pd.Series(stemmed_text).value_counts()
+    stemmed_text = ' '.join(stemmed_text)
+    tokens_stemmed = nltk.word_tokenize(stemmed_text)
+    tokens_stemmed = pd.Series(tokens_stemmed).value_counts()
 
     # nice to see that now philosoph = {philosophy, philosophers} and also moral = {moral, morality}
 
     # (e) noun phrase
 
     pt = plain_text[545:]
+    pt = plain_text
 
     clean_text = noun_phrases(pt)
 
@@ -216,6 +224,10 @@ if __name__ == '__main__':
     fig2 = zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
 
     plt.show()
+
+    # (f) faulty POS tagging
+
+
 
 
 
