@@ -58,31 +58,15 @@ def noun_phrases(plain_text):
         for subtree in noun_phrase.subtrees(filter=lambda t: t.label() == 'NP'):
             k = subtree.leaves()
             phrase = [k[i][0] for i in range(0, len(k))]
+
             separator = ', '
             phrase = separator.join(phrase)
             phrase = re.sub(', ', ' ', phrase)
             branch.append(phrase)
+        print(branch)
+        np_text = np_text + branch
 
-        # combine to or-criterion for re.sub replacement
-        branch = separator.join(branch)
-        criterion = re.sub(', ', ' | ', branch)
-        criterion = ' ' + criterion + ' '
-
-        # replace noun phrases by 'NP' token
-        # TODO: criterion sometimes contains 'i', then also letter i is replaced by NOUNPHRASE. for example: which -> whNOUNPHRASEch, is -> NOUNPHRASEs
-        #       solved it by adding spaces, that 'i' only gets replaced when it stands on it's own
-
-        new_sentence = re.sub(criterion, ' NP ',
-                              sentences[i])  # would not work if there is something like back NN,  back VBZ
-        np_text.append(new_sentence)
-
-    # first combine all sentences back to text and remove punctuation
-    phrase = separator.join(np_text)
-    text = re.sub(', ', ' ', phrase)
-    space = '                                '  # 32 spaces
-    clean_text = text.translate(str.maketrans(string.punctuation, space))
-
-    return clean_text
+    return ' '.join(np_text)
 
 
 def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
@@ -91,9 +75,12 @@ def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
 
     fig1, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=4, nrows=1, figsize=(16, 12))
     for ax, k in zip([ax1, ax2, ax3, ax4], toks):
-        tokens_list = k[:50]
+        tokens_list = k[:30]
+
         people = tokens_list.index
-        y_pos = np.linspace(len(people), 0)
+        y_pos = np.arange(1, len(people) + 1)
+        y_pos = np.abs(np.sort(-y_pos))
+
         ax.barh(y_pos, tokens_list)
         ax.set_xscale('log')
         ax.set_yticks(y_pos)
@@ -209,16 +196,6 @@ if __name__ == '__main__':
 
     tokenized_text = nltk.word_tokenize(clean_text)
     tokens_np = pd.Series(tokenized_text).value_counts()
-
-    # TODO: which version do we want to show?
-    #       also change title of plot
-
-    filtered_text = [w for w in tokenized_text if not w in stop_words]
-    tokens_np = pd.Series(filtered_text).value_counts()
-
-    stemmed_text = [ps.stem(w) for w in filtered_text]
-    tokens_np = pd.Series(stemmed_text).value_counts()
-
 
     fig1 = bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
     fig2 = zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
