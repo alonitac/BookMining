@@ -86,10 +86,10 @@ def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
         ax.set_yticklabels(people)
         ax.set_xlabel("Frequency of Token")
 
-    ax1.set_title("unfiltered")
-    ax2.set_title("filtered")
-    ax3.set_title("filtered & stemmed")
-    ax4.set_title("noun phrases")
+    ax1.set_title("(b) unfiltered")
+    ax2.set_title("(c) filtered")
+    ax3.set_title("(d) filtered & stemmed")
+    ax4.set_title("(e) noun phrases, stemmed")
 
     plt.subplots_adjust(wspace=0.3)
 
@@ -113,18 +113,18 @@ def zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
 
         ax.loglog(ranks, frequencies, marker=".")
 
-        for n in list(np.logspace(-0.5, np.log10(len(counts)), 20, endpoint=False).astype(int)):
+        for n in list(np.logspace(-0.5, np.log10(len(counts)), 17, endpoint=False).astype(int)):
             ax.text(ranks[n], frequencies[n], " " + indices[n],
                          verticalalignment="bottom",
                          horizontalalignment="left")
 
-    ax1.set_title("unfiltered")
-    ax2.set_title("filtered")
-    ax3.set_title("filtered & stemmed")
-    ax4.set_title("noun phrases")
+    ax1.set_title("(b) unfiltered")
+    ax2.set_title("(c)) filtered")
+    ax3.set_title("(d) filtered & stemmed")
+    ax4.set_title("(e) noun phrases, stemmed")
 
-    ax3.set_xlabel("Frequency Rank of Token")
-    ax4.set_xlabel("Frequency Rank of Token")
+    ax3.set_xlabel("Rank of Token")
+    ax4.set_xlabel("Rank of Token")
     ax1.set_ylabel("Absolute Frequency of Token")
     ax3.set_ylabel("Absolute Frequency of Token")
 
@@ -170,10 +170,6 @@ if __name__ == '__main__':
     tokens_filtered = nltk.word_tokenize(filtered_text)
     tokens_filtered = pd.Series(tokens_filtered).value_counts()
 
-    # TODO: make more pretty
-    print('tokens: ' + str(tokens[:20].index) +
-          '\n filtered tokens: ' + str(tokens_filtered[:20].index))
-
     # (d) stemming
 
     ps = PorterStemmer()
@@ -184,7 +180,11 @@ if __name__ == '__main__':
     tokens_stemmed = nltk.word_tokenize(stemmed_text)
     tokens_stemmed = pd.Series(tokens_stemmed).value_counts()
 
-    # nice to see that now philosoph = {philosophy, philosophers} and also moral = {moral, morality}
+    print('20 most frequent tokens: \n' +
+          'unfiltered: \n' + str(tokens[:20].index.values) +
+          '\n filtered: \n' + str(tokens_filtered[:20].index.values) +
+          '\n filtered & stemmed: \n' + str(tokens_stemmed[:20].index.values))
+
 
     # (e) noun phrase
 
