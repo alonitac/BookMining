@@ -61,7 +61,7 @@ def noun_phrases(plain_text):
 
 def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
     """
-    Creates bar plots for the 40 most frequent tokens
+    Creates bar plots for the 50 most frequent tokens
     :param tokens: tokens of whole text, with stopwords
     :param tokens_filtered: tokens of text without stopwords
     :param tokens_stemmed: tokens of text without stopwords and stemmed
@@ -71,9 +71,9 @@ def bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np):
 
     toks = [tokens, tokens_filtered, tokens_stemmed, tokens_np]
 
-    fig1, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=4, nrows=1, figsize=(12, 12))
+    fig1, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=4, nrows=1, figsize=(12, 16))
     for ax, k in zip([ax1, ax2, ax3, ax4], toks):
-        tokens_list = k[:40]
+        tokens_list = k[:50]
 
         people = tokens_list.index
         y_pos = np.arange(1, len(people) + 1)
@@ -208,17 +208,14 @@ if __name__ == '__main__':
     # create plots
     fig1 = bar_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
     fig2 = zipfian_plot(tokens, tokens_filtered, tokens_stemmed, tokens_np)
-    fig1.savefig('tokens.png')
-    fig2.savefig('zipfian_graph.png')
+    # fig1.savefig('tokens.png')
+    # fig2.savefig('zipfian_graph.png')
 
     plt.show()
 
     # (f) faulty POS tagging
-    sentence = 'the reverse of those hitherto prevalent--philosophers of the dangerous "Perhaps" in every sense of the term'
-    sentence = 'hitherto prevalent'
-    sentence = 'WHOSE DUTY IS WAKEFULNESS ITSELF, are the heirs of all the strength which the struggle against this error has fostered.'
-    sentence = 'WHAT really is this "Will to Truth" in us?'
     sentence = 'The fundamental belief of metaphysicians is THE BELIEF IN ANTITHESES OF VALUES.'
+    sentence = 'and with such hypnotic rigidity to see Nature FALSELY, that is to say, Stoically'
 
     sentence_lc = to_lowercase_words(sentence)
     # Actual: [('hitherto', 'NN'), ('prevalent', 'NN')]
